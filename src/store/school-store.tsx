@@ -208,9 +208,8 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
       emit();
     });
     unsub = subscribeSchoolData(uid, (remote) => {
-      applyRemoteData(remote, uid);
       syncLabelCache = computeSyncLabel(uid, privacyOk);
-      emit();
+      applyRemoteData(remote, uid);
     });
 
     return () => {

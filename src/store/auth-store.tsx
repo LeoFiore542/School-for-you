@@ -54,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     let cancelled = false;
+    // Se Firebase Auth resta appeso, non lasciare l'UI su "Caricamento…" per sempre.
+    const readyTimeout = window.setTimeout(() => {
+      if (!cancelled) setReady(true);
+    }, 6000);
 
     async function finishConsent(u: User) {
       const epoch = ++profileEpoch.current;
@@ -126,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(readyTimeout);
       unsub();
     };
   }, [configured]);
