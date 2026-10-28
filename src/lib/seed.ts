@@ -88,44 +88,7 @@ export function createSeedData(): SchoolData {
     { id: id("les", 20), subjectId: edf, dayOfWeek: 5 as const, startTime: "11:00", endTime: "12:00" },
   ];
 
-  const homework = [
-    {
-      id: id("hw", 1),
-      subjectId: mat,
-      title: "Esercizi sulle equazioni di secondo grado",
-      dueDate: dateOffset(1),
-      done: false,
-      notes: "Pag. 142 n. 1–12",
-    },
-    {
-      id: id("hw", 2),
-      subjectId: ita,
-      title: "Analisi del canto V dell'Inferno",
-      dueDate: dateOffset(2),
-      done: false,
-    },
-    {
-      id: id("hw", 3),
-      subjectId: eng,
-      title: "Reading comprehension Unit 4",
-      dueDate: dateOffset(0),
-      done: false,
-    },
-    {
-      id: id("hw", 4),
-      subjectId: sto,
-      title: "Mappa concettuale sulla Rivoluzione Francese",
-      dueDate: dateOffset(-2),
-      done: true,
-    },
-    {
-      id: id("hw", 5),
-      subjectId: sci,
-      title: "Relazione di laboratorio sulla fotosintesi",
-      dueDate: dateOffset(4),
-      done: false,
-    },
-  ];
+  const homework: SchoolData["homework"] = [];
 
   const grades = [
     { id: id("gr", 1), subjectId: mat, value: 7.5, date: dateOffset(-14), type: "scritto" as const, weight: 1 },
@@ -137,29 +100,7 @@ export function createSeedData(): SchoolData {
     { id: id("gr", 7), subjectId: sci, value: 8, date: dateOffset(-8), type: "pratico" as const, weight: 1 },
   ];
 
-  const exams = [
-    {
-      id: id("ex", 1),
-      subjectId: mat,
-      date: dateOffset(3),
-      type: "verifica" as const,
-      topic: "Equazioni e disequazioni",
-    },
-    {
-      id: id("ex", 2),
-      subjectId: ita,
-      date: dateOffset(5),
-      type: "interrogazione" as const,
-      topic: "Divina Commedia – Inferno",
-    },
-    {
-      id: id("ex", 3),
-      subjectId: sci,
-      date: dateOffset(8),
-      type: "compito_in_classe" as const,
-      topic: "Cellula e metabolismo",
-    },
-  ];
+  const exams: SchoolData["exams"] = [];
 
   return { subjects, lessons, homework, grades, exams };
 }

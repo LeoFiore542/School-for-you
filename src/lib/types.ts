@@ -19,6 +19,8 @@ export interface LessonSlot {
   startTime: string; // HH:mm
   endTime: string;
   room?: string;
+  /** Numero/sezione classe (es. 3A, 4B). */
+  classNumber?: string;
 }
 
 export interface Homework {

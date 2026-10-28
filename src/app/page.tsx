@@ -134,7 +134,14 @@ export default function DashboardPage() {
                         {subject?.name ?? "Materia"}
                       </p>
                       <p className="text-xs text-muted">
-                        {lesson.room || subject?.room || "—"}
+                        {[
+                          lesson.classNumber
+                            ? `Cl. ${lesson.classNumber}`
+                            : null,
+                          lesson.room || subject?.room || null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ") || "—"}
                       </p>
                     </div>
                     <span className="shrink-0 text-xs tabular-nums text-muted">

@@ -32,6 +32,7 @@ export default function OrarioPage() {
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("09:00");
   const [room, setRoom] = useState("");
+  const [classNumber, setClassNumber] = useState("");
 
   const today = todayDayOfWeek();
 
@@ -62,6 +63,7 @@ export default function OrarioPage() {
     setStartTime("08:00");
     setEndTime("09:00");
     setRoom("");
+    setClassNumber("");
   }
 
   function onSubmit(e: FormEvent) {
@@ -73,6 +75,7 @@ export default function OrarioPage() {
       startTime,
       endTime,
       room: room.trim() || undefined,
+      classNumber: classNumber.trim() || undefined,
     });
     resetForm();
   }
@@ -160,6 +163,15 @@ export default function OrarioPage() {
                   placeholder="Lascia vuoto per usare l’aula della materia"
                 />
               </Field>
+              <Field label="Classe (opzionale)">
+                <input
+                  className={inputClass}
+                  value={classNumber}
+                  onChange={(e) => setClassNumber(e.target.value)}
+                  placeholder="Es. 3A, 4B…"
+                  maxLength={20}
+                />
+              </Field>
             </FormGrid>
             <div className="flex gap-2">
               <BtnPrimary type="submit">Aggiungi</BtnPrimary>
@@ -206,6 +218,9 @@ export default function OrarioPage() {
                           </p>
                           <p className="text-[11px] tabular-nums text-muted">
                             {lesson.startTime}–{lesson.endTime}
+                            {lesson.classNumber
+                              ? ` · Cl. ${lesson.classNumber}`
+                              : ""}
                             {(lesson.room || subject?.room) &&
                               ` · ${lesson.room || subject?.room}`}
                           </p>

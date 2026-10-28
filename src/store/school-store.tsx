@@ -73,11 +73,37 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
+const SEED_HOMEWORK_IDS = new Set([
+  "hw-1",
+  "hw-2",
+  "hw-3",
+  "hw-4",
+  "hw-5",
+]);
+const SEED_EXAM_IDS = new Set(["ex-1", "ex-2", "ex-3"]);
+
+/** Rimuove i compiti/prove di esempio lasciando eventuali voci create dall’utente. */
+function stripSeedHomeworkAndExams(data: SchoolData): SchoolData {
+  const homework = data.homework.filter((h) => !SEED_HOMEWORK_IDS.has(h.id));
+  const exams = data.exams.filter((e) => !SEED_EXAM_IDS.has(e.id));
+  if (
+    homework.length === data.homework.length &&
+    exams.length === data.exams.length
+  ) {
+    return data;
+  }
+  return { ...data, homework, exams };
+}
+
 function hydrateForUser(uid: string | null): SchoolData {
   if (hydrated && boundUid === uid) return cache;
   const stored = loadSchoolData(uid);
   if (stored) {
-    cache = stored;
+    cache = stripSeedHomeworkAndExams(stored);
+    if (cache !== stored) {
+      saveSchoolData(cache, uid);
+      if (uid) saveSchoolDataToFirebase(cache);
+    }
   } else {
     cache = createSeedData();
     saveSchoolData(cache, uid);
