@@ -1,7 +1,9 @@
 import {
   GoogleAuthProvider,
+  getRedirectResult,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
   signOut as firebaseSignOut,
   type User,
   type Unsubscribe,
@@ -24,6 +26,29 @@ export type UserProfile = {
   privacyVersion?: string;
 };
 
+function mapAuthError(err: unknown): string {
+  const code =
+    typeof err === "object" && err && "code" in err
+      ? String((err as { code: string }).code)
+      : "";
+  const message = err instanceof Error ? err.message : "Accesso Google non riuscito";
+
+  switch (code) {
+    case "auth/popup-blocked":
+      return "Il browser ha bloccato il popup di Google. Consenti i popup per questo sito e riprova.";
+    case "auth/popup-closed-by-user":
+      return "Finestra di Google chiusa prima del completamento. Riprova.";
+    case "auth/unauthorized-domain":
+      return "Questo dominio non è autorizzato in Firebase Authentication. Aggiungi leofiore542.github.io nei domini autorizzati.";
+    case "auth/operation-not-allowed":
+      return "Il provider Google non è abilitato nella console Firebase.";
+    case "auth/network-request-failed":
+      return "Errore di rete durante l’accesso. Controlla la connessione e riprova.";
+    default:
+      return message.replace(/^Firebase:\s*/i, "");
+  }
+}
+
 export function subscribeAuth(onUser: (user: User | null) => void): Unsubscribe {
   const auth = getFirebaseAuth();
   if (!auth) {
@@ -33,6 +58,19 @@ export function subscribeAuth(onUser: (user: User | null) => void): Unsubscribe 
   return onAuthStateChanged(auth, onUser);
 }
 
+/** Completa eventuale login con redirect (utile se il popup è bloccato). */
+export async function completeRedirectSignIn(): Promise<User | null> {
+  const auth = getFirebaseAuth();
+  if (!auth) return null;
+  try {
+    const result = await getRedirectResult(auth);
+    return result?.user ?? null;
+  } catch (err) {
+    console.error("[auth] redirect result failed", err);
+    throw new Error(mapAuthError(err));
+  }
+}
+
 export async function signInWithGoogle(): Promise<User> {
   const auth = getFirebaseAuth();
   if (!auth || !isFirebaseConfigured()) {
@@ -40,8 +78,29 @@ export async function signInWithGoogle(): Promise<User> {
   }
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  const result = await signInWithPopup(auth, provider);
-  return result.user;
+  provider.addScope("profile");
+  provider.addScope("email");
+
+  try {
+    const result = await signInWithPopup(auth, provider);
+    return result.user;
+  } catch (err) {
+    const code =
+      typeof err === "object" && err && "code" in err
+        ? String((err as { code: string }).code)
+        : "";
+    // Su GitHub Pages / mobile il popup spesso fallisce: fallback redirect.
+    if (
+      code === "auth/popup-blocked" ||
+      code === "auth/popup-closed-by-user" ||
+      code === "auth/cancelled-popup-request"
+    ) {
+      await signInWithRedirect(auth, provider);
+      // La pagina naviga via: resta in attesa senza segnalare errore.
+      return await new Promise<User>(() => {});
+    }
+    throw new Error(mapAuthError(err));
+  }
 }
 
 export async function signOut(): Promise<void> {
@@ -71,6 +130,24 @@ export function hasValidPrivacyConsent(profile: UserProfile | null): boolean {
   return profile.privacyVersion === PRIVACY_VERSION;
 }
 
+export function profileFromUser(
+  user: User,
+  consent: boolean,
+): UserProfile {
+  return {
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    ...(consent
+      ? {
+          privacyAcceptedAt: new Date().toISOString(),
+          privacyVersion: PRIVACY_VERSION,
+        }
+      : {}),
+  };
+}
+
 /** Salva profilo + consenso privacy dopo login Google. */
 export async function savePrivacyConsent(user: User): Promise<void> {
   const db = getDb();
@@ -80,9 +157,9 @@ export async function savePrivacyConsent(user: User): Promise<void> {
   await setDoc(
     ref,
     {
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
+      email: user.email ?? "",
+      displayName: user.displayName ?? "",
+      photoURL: user.photoURL ?? "",
       privacyAcceptedAt: serverTimestamp(),
       privacyVersion: PRIVACY_VERSION,
       updatedAt: serverTimestamp(),

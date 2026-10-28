@@ -73,18 +73,20 @@ export function BtnPrimary({
   type = "button",
   onClick,
   disabled,
+  className = "",
 }: {
   children: ReactNode;
   type?: "button" | "submit";
   onClick?: () => void;
   disabled?: boolean;
+  className?: string;
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+      className={`inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
       {children}
     </button>

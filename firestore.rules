@@ -18,17 +18,10 @@ service cloud.firestore {
     // Profilo utente + consenso privacy
     match /users/{uid} {
       allow read: if isOwner(uid);
-      allow create: if isOwner(uid)
-        && request.resource.data.keys().hasAll([
-          'email',
-          'privacyAcceptedAt',
-          'privacyVersion'
-        ])
+      allow create, update: if isOwner(uid)
         && request.resource.data.privacyAcceptedAt is timestamp
-        && request.resource.data.privacyVersion is string;
-      allow update: if isOwner(uid)
-        && request.resource.data.privacyAcceptedAt is timestamp
-        && request.resource.data.privacyVersion is string;
+        && request.resource.data.privacyVersion is string
+        && request.resource.data.privacyVersion.size() > 0;
       allow delete: if isOwner(uid);
 
       // Dati scolastici personali

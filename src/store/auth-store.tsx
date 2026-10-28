@@ -6,13 +6,16 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import type { User } from "firebase/auth";
 import {
+  completeRedirectSignIn,
   hasValidPrivacyConsent,
   loadUserProfile,
+  profileFromUser,
   savePrivacyConsent,
   signInWithGoogle,
   signOut as authSignOut,
@@ -41,52 +44,103 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const configured = isFirebaseConfigured();
+  /** Evita che un load profilo “stale” sovrascriva il consenso appena salvato. */
+  const profileEpoch = useRef(0);
 
   useEffect(() => {
     if (!configured) {
       setReady(true);
       return;
     }
+
+    let cancelled = false;
+
+    async function finishConsent(u: User) {
+      const epoch = ++profileEpoch.current;
+      await savePrivacyConsent(u);
+      if (cancelled || epoch !== profileEpoch.current) return;
+      setUser(u);
+      setProfile(profileFromUser(u, true));
+    }
+
+    // Completa login via redirect (se il popup era stato bloccato).
+    void (async () => {
+      try {
+        const redirected = await completeRedirectSignIn();
+        if (redirected && !cancelled) {
+          await finishConsent(redirected);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : "Accesso Google non riuscito",
+          );
+        }
+      }
+    })();
+
     const unsub = subscribeAuth(async (next) => {
+      if (cancelled) return;
       setUser(next);
       if (!next) {
         setProfile(null);
         setReady(true);
         return;
       }
+
+      const epoch = ++profileEpoch.current;
       try {
         const p = await loadUserProfile(next.uid);
-        setProfile(
-          p ?? {
-            uid: next.uid,
-            email: next.email,
-            displayName: next.displayName,
-            photoURL: next.photoURL,
-          },
-        );
+        if (cancelled || epoch !== profileEpoch.current) return;
+        // Non degradare un profilo che ha già il consenso in memoria.
+        setProfile((prev) => {
+          if (hasValidPrivacyConsent(prev) && prev?.uid === next.uid) {
+            return prev;
+          }
+          return (
+            p ?? {
+              uid: next.uid,
+              email: next.email,
+              displayName: next.displayName,
+              photoURL: next.photoURL,
+            }
+          );
+        });
       } catch (err) {
         console.error(err);
-        setProfile({
-          uid: next.uid,
-          email: next.email,
-          displayName: next.displayName,
-          photoURL: next.photoURL,
-        });
+        if (cancelled || epoch !== profileEpoch.current) return;
+        setProfile((prev) =>
+          hasValidPrivacyConsent(prev) && prev?.uid === next.uid
+            ? prev
+            : {
+                uid: next.uid,
+                email: next.email,
+                displayName: next.displayName,
+                photoURL: next.photoURL,
+              },
+        );
       } finally {
-        setReady(true);
+        if (!cancelled) setReady(true);
       }
     });
-    return unsub;
+
+    return () => {
+      cancelled = true;
+      unsub();
+    };
   }, [configured]);
 
   const signInGoogleWithPrivacy = useCallback(async () => {
     setError(null);
     try {
       const u = await signInWithGoogle();
+      const epoch = ++profileEpoch.current;
       await savePrivacyConsent(u);
-      const p = await loadUserProfile(u.uid);
-      setUser(u);
-      setProfile(p);
+      // Profilo ottimistico: non dipendere dal round-trip getDoc (race con onAuthStateChanged).
+      if (epoch === profileEpoch.current) {
+        setUser(u);
+        setProfile(profileFromUser(u, true));
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Accesso Google non riuscito";
@@ -97,6 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     setError(null);
+    profileEpoch.current += 1;
     await authSignOut();
     setUser(null);
     setProfile(null);

@@ -59,9 +59,8 @@ export default function LoginPage() {
           <form onSubmit={onSubmit} className="space-y-5">
             {user && !privacyOk ? (
               <div className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning">
-                Hai effettuato l’accesso come {user.email}, ma manca
-                l’accettazione dell’informativa privacy (versione{" "}
-                {PRIVACY_VERSION}). Accetta i termini e ripeti l’accesso.
+                Accesso Google ok ({user.email}), ma il consenso privacy non è
+                ancora registrato. Spunta la casella e riprova.
                 <button
                   type="button"
                   className="ml-2 underline"
@@ -72,47 +71,52 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/80 bg-surface/60 p-3 text-sm leading-relaxed">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4 accent-[var(--accent)]"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-                required
-              />
-              <span>
-                Dichiaro di aver letto e di accettare l’
+            <div className="rounded-xl border border-border/80 bg-surface/60 p-3 text-sm leading-relaxed">
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent)]"
+                  checked={accepted}
+                  onChange={(e) => setAccepted(e.target.checked)}
+                />
+                <span>
+                  Dichiaro di aver letto e di accettare l’informativa sulla
+                  privacy (versione {PRIVACY_VERSION}), che spiega come vengono
+                  raccolti, salvati su Firebase e gestiti i miei dati scolastici
+                  e di account Google.
+                </span>
+              </label>
+              <p className="mt-2 pl-7 text-xs text-muted">
                 <Link
                   href="/privacy/"
                   className="font-medium text-accent underline-offset-2 hover:underline"
-                  target="_blank"
                 >
-                  informativa sulla privacy
-                </Link>{" "}
-                (versione {PRIVACY_VERSION}), che spiega in modo esplicito come
-                vengono raccolti, salvati su Firebase e gestiti i miei dati
-                scolastici e di account Google.
-              </span>
-            </label>
+                  Apri l’informativa completa
+                </Link>
+              </p>
+            </div>
 
-            <BtnPrimary type="submit" disabled={!accepted || busy}>
-              {busy ? "Accesso in corso…" : "Continua con Google"}
+            <BtnPrimary
+              type="submit"
+              disabled={!accepted || busy}
+              className="w-full"
+            >
+              {busy
+                ? "Accesso in corso…"
+                : accepted
+                  ? "Continua con Google"
+                  : "Spunta la casella per continuare"}
             </BtnPrimary>
 
             {error ? (
               <p className="text-sm text-danger" role="alert">
-                {error.includes("auth/operation-not-allowed")
-                  ? "Il provider Google non è ancora abilitato nella console Firebase. Abilita Authentication → Sign-in method → Google."
-                  : error}
+                {error}
               </p>
             ) : null}
 
             <p className="text-center text-xs text-muted">
-              Senza accettazione non è possibile accedere né sincronizzare i
-              dati.{" "}
-              <Link href="/privacy/" className="text-accent hover:underline">
-                Leggi l’informativa
-              </Link>
+              Se il popup di Google è bloccato, verrai reindirizzato
+              automaticamente alla pagina di accesso Google.
             </p>
           </form>
         )}
