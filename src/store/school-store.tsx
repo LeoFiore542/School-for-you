@@ -59,18 +59,22 @@ const SchoolContext = createContext<SchoolStore | null>(null);
 
 type Listener = () => void;
 
-let cache: SchoolData | null = null;
+/** Stable empty snapshot — useSyncExternalStore forbids new refs each call. */
+const EMPTY_DATA: SchoolData = emptySchoolData();
+
+let cache: SchoolData = EMPTY_DATA;
 let hydrated = false;
 let firebaseReady = false;
-let boundUid: string | null = null;
+let boundUid: string | null | undefined = undefined;
+let syncLabelCache = "";
 const listeners = new Set<Listener>();
 
 function emit() {
   listeners.forEach((l) => l());
 }
 
-function readClientData(uid: string | null): SchoolData {
-  if (cache && boundUid === uid) return cache;
+function hydrateForUser(uid: string | null): SchoolData {
+  if (hydrated && boundUid === uid) return cache;
   const stored = loadSchoolData(uid);
   if (stored) {
     cache = stored;
@@ -110,16 +114,38 @@ function subscribe(listener: Listener) {
   };
 }
 
-function getServerSnapshot(): SchoolData {
-  return emptySchoolData();
+function getDataSnapshot(): SchoolData {
+  return hydrated ? cache : EMPTY_DATA;
+}
+
+function getDataServerSnapshot(): SchoolData {
+  return EMPTY_DATA;
+}
+
+function getReadySnapshot(): boolean {
+  return hydrated;
 }
 
 function getReadyServerSnapshot(): boolean {
   return false;
 }
 
+function getSyncLabelSnapshot(): string {
+  return syncLabelCache;
+}
+
 function getSyncLabelServerSnapshot(): string {
   return "";
+}
+
+function computeSyncLabel(
+  uid: string | null,
+  privacyOk: boolean,
+): string {
+  if (!isFirebaseConfigured()) return "Solo dispositivo";
+  if (!uid) return "Accesso richiesto";
+  if (!privacyOk) return "Consenso privacy richiesto";
+  return firebaseReady ? "Sincronizzato" : "Connessione…";
 }
 
 export function SchoolProvider({ children }: { children: ReactNode }) {
@@ -128,35 +154,19 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
 
   const data = useSyncExternalStore(
     subscribe,
-    () => (authReady ? readClientData(uid) : emptySchoolData()),
-    getServerSnapshot,
+    getDataSnapshot,
+    getDataServerSnapshot,
   );
 
   const ready = useSyncExternalStore(
     subscribe,
-    () => {
-      if (!authReady) return false;
-      // Senza Firebase (es. Pages senza secrets) usiamo solo cache locale.
-      if (!isFirebaseConfigured()) {
-        if (typeof window !== "undefined") readClientData(null);
-        return hydrated;
-      }
-      // Con Firebase i dati sono per-utente: ready solo dopo login.
-      if (!uid) return false;
-      if (typeof window !== "undefined") readClientData(uid);
-      return hydrated;
-    },
+    getReadySnapshot,
     getReadyServerSnapshot,
   );
 
   const syncLabel = useSyncExternalStore(
     subscribe,
-    () => {
-      if (!uid) return "Accesso richiesto";
-      if (!isFirebaseConfigured()) return "Solo dispositivo";
-      if (!privacyOk) return "Consenso privacy richiesto";
-      return firebaseReady ? "Sincronizzato" : "Connessione…";
-    },
+    getSyncLabelSnapshot,
     getSyncLabelServerSnapshot,
   );
 
@@ -166,9 +176,8 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     if (!isFirebaseConfigured()) {
       setStorageUser(null);
       firebaseReady = true;
-      cache = null;
-      boundUid = null;
-      readClientData(null);
+      hydrateForUser(null);
+      syncLabelCache = computeSyncLabel(null, privacyOk);
       emit();
       return;
     }
@@ -176,24 +185,32 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     if (!uid || !privacyOk) {
       setStorageUser(null);
       firebaseReady = false;
+      // Reset store until login+privacy; keep snapshot stable.
+      cache = EMPTY_DATA;
+      hydrated = false;
+      boundUid = undefined;
+      syncLabelCache = computeSyncLabel(uid, privacyOk);
       emit();
       return;
     }
 
     setStorageUser(uid);
     firebaseReady = false;
-    cache = null;
-    boundUid = null;
-    const local = readClientData(uid);
+    hydrateForUser(uid);
+    syncLabelCache = computeSyncLabel(uid, privacyOk);
     emit();
 
+    const local = cache;
     let unsub: (() => void) | null = null;
     void ensureFirebaseDocument(uid, local).then(() => {
       firebaseReady = true;
+      syncLabelCache = computeSyncLabel(uid, privacyOk);
       emit();
     });
     unsub = subscribeSchoolData(uid, (remote) => {
       applyRemoteData(remote, uid);
+      syncLabelCache = computeSyncLabel(uid, privacyOk);
+      emit();
     });
 
     return () => {
@@ -206,7 +223,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
   const commit = useCallback(
     (updater: (prev: SchoolData) => SchoolData) => {
       if (!canWrite) return;
-      writeData(updater(readClientData(uid)), uid);
+      writeData(updater(hydrateForUser(uid)), uid);
     },
     [canWrite, uid],
   );
