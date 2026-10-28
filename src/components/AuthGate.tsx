@@ -5,24 +5,26 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/store/auth-store";
 import { LoadingState } from "@/components/ui";
 
-const PUBLIC_PATHS = ["/login", "/privacy"];
+function isPublicPath(pathname: string): boolean {
+  return (
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname === "/privacy" ||
+    pathname.startsWith("/privacy/")
+  );
+}
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const { user, ready, privacyOk, configured } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-
-  const isPublic = PUBLIC_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
+  const isPublic = isPublicPath(pathname);
 
   useEffect(() => {
     if (!ready) return;
 
-    if (!configured && !isPublic) {
-      // Senza Firebase non possiamo fare login: resta sull'app in sola cache.
-      return;
-    }
+    // Senza config Firebase l'app funziona in sola cache locale.
+    if (!configured) return;
 
     if (!user && !isPublic) {
       router.replace("/login/");
@@ -34,7 +36,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (user && privacyOk && pathname.startsWith("/login")) {
+    if (user && privacyOk && isPublicPath(pathname) && pathname.startsWith("/login")) {
       router.replace("/");
     }
   }, [ready, user, privacyOk, configured, isPublic, pathname, router]);

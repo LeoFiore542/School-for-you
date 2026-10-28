@@ -136,10 +136,15 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     subscribe,
     () => {
       if (!authReady) return false;
-      if (typeof window !== "undefined" && uid) {
-        readClientData(uid);
+      // Senza Firebase (es. Pages senza secrets) usiamo solo cache locale.
+      if (!isFirebaseConfigured()) {
+        if (typeof window !== "undefined") readClientData(null);
+        return hydrated;
       }
-      return hydrated && Boolean(uid);
+      // Con Firebase i dati sono per-utente: ready solo dopo login.
+      if (!uid) return false;
+      if (typeof window !== "undefined") readClientData(uid);
+      return hydrated;
     },
     getReadyServerSnapshot,
   );
@@ -156,7 +161,19 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!authReady || !uid || !privacyOk) {
+    if (!authReady) return;
+
+    if (!isFirebaseConfigured()) {
+      setStorageUser(null);
+      firebaseReady = true;
+      cache = null;
+      boundUid = null;
+      readClientData(null);
+      emit();
+      return;
+    }
+
+    if (!uid || !privacyOk) {
       setStorageUser(null);
       firebaseReady = false;
       emit();
@@ -184,23 +201,25 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     };
   }, [authReady, uid, privacyOk]);
 
+  const canWrite = Boolean(uid) || !isFirebaseConfigured();
+
   const commit = useCallback(
     (updater: (prev: SchoolData) => SchoolData) => {
-      if (!uid) return;
+      if (!canWrite) return;
       writeData(updater(readClientData(uid)), uid);
     },
-    [uid],
+    [canWrite, uid],
   );
 
   const resetToSeed = useCallback(() => {
-    if (!uid) return;
+    if (!canWrite) return;
     writeData(createSeedData(), uid);
-  }, [uid]);
+  }, [canWrite, uid]);
 
   const clearAll = useCallback(() => {
-    if (!uid) return;
+    if (!canWrite) return;
     writeData(emptySchoolData(), uid);
-  }, [uid]);
+  }, [canWrite, uid]);
 
   const addSubject = useCallback(
     (input: Omit<Subject, "id">) => {
