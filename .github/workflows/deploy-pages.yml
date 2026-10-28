@@ -12,7 +12,8 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # false = coda i deploy invece di cancellarli (evita la X rossa "Canceling since...")
+  cancel-in-progress: false
 
 jobs:
   build:
