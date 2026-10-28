@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "firebase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firebase-tools@latest",
+        "mcp",
+        "--dir",
+        "/Users/bob542/Documents/Github_local_repo/School for you/School-for-you-main",
+        "--only",
+        "firestore,auth,storage,projectmanagement"
+      ]
+    }
+  }
+}

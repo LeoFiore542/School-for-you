@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+:root {
+  --background: #e6edf2;
+  --background-deep: #d4e0e8;
+  --surface: #f7fafc;
+  --surface-elevated: #ffffff;
+  --foreground: #15202b;
+  --muted: #5a6b7a;
+  --border: #c5d3de;
+  --accent: #0a5c5c;
+  --accent-soft: #d4ecec;
+  --accent-hover: #084848;
+  --danger: #9f1239;
+  --warning: #b45309;
+  --success: #166534;
+  --shadow: 0 1px 2px rgb(21 32 43 / 6%), 0 8px 24px rgb(21 32 43 / 6%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-deep: var(--background-deep);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-hover: var(--accent-hover);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+body {
+  background:
+    radial-gradient(ellipse 120% 80% at 10% -20%, #c5dde8 0%, transparent 55%),
+    radial-gradient(ellipse 90% 60% at 100% 0%, #b8d4c8 0%, transparent 50%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.45s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.35s ease-out both;
+}
+
+.stagger-1 {
+  animation-delay: 0.06s;
+}
+.stagger-2 {
+  animation-delay: 0.12s;
+}
+.stagger-3 {
+  animation-delay: 0.18s;
+}
+.stagger-4 {
+  animation-delay: 0.24s;
+}

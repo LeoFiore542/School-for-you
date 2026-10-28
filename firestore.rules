@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function privacyAccepted() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.privacyAcceptedAt is timestamp;
+    }
+
+    // Profilo utente + consenso privacy
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasAll([
+          'email',
+          'privacyAcceptedAt',
+          'privacyVersion'
+        ])
+        && request.resource.data.privacyAcceptedAt is timestamp
+        && request.resource.data.privacyVersion is string;
+      allow update: if isOwner(uid)
+        && request.resource.data.privacyAcceptedAt is timestamp
+        && request.resource.data.privacyVersion is string;
+      allow delete: if isOwner(uid);
+
+      // Dati scolastici personali
+      match /data/{docId} {
+        allow read, write: if isOwner(uid) && privacyAccepted();
+      }
+    }
+
+    // Blocca i vecchi workspace aperti senza autenticazione
+    match /workspaces/{workspaceId} {
+      allow read, write: if false;
+    }
+  }
+}

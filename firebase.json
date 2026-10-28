@@ -1,0 +1,20 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "School Manager",
+        "supportEmail": "leopoldo080812@gmail.com",
+        "authorizedRedirectUris": [
+          "https://school-for-you.firebaseapp.com/__/auth/handler",
+          "http://localhost:3000",
+          "http://localhost:3000/",
+          "https://leofiore542.github.io/School-for-you/",
+          "https://leofiore542.github.io"
+        ]
+      }
+    }
+  }
+}
