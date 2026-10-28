@@ -72,7 +72,7 @@ export default function DashboardPage() {
         />
         <div className="relative max-w-2xl">
           <p className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-            School Manager
+            School for you
           </p>
           <h1 className="mt-4 text-lg font-medium text-foreground/90 md:text-xl">
             {weekdayLabel}, {formatLongItalianDate(today)}

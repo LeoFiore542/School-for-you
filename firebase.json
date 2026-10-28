@@ -5,7 +5,7 @@
   "auth": {
     "providers": {
       "googleSignIn": {
-        "oAuthBrandDisplayName": "School Manager",
+        "oAuthBrandDisplayName": "School for you",
         "supportEmail": "leopoldo080812@gmail.com",
         "authorizedRedirectUris": [
           "https://school-for-you.firebaseapp.com/__/auth/handler",

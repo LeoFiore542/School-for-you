@@ -50,7 +50,7 @@ export function AppNav() {
       <aside className="hidden w-56 shrink-0 flex-col border-r border-border/80 bg-surface/80 px-3 py-6 backdrop-blur-md lg:flex">
         <Link href="/" className="mb-8 px-3">
           <span className="font-display text-xl font-semibold tracking-tight text-foreground">
-            School Manager
+            School for you
           </span>
           <span className="mt-0.5 block text-xs text-muted">
             Il tuo anno scolastico

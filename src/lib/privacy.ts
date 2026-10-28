@@ -8,7 +8,7 @@ export const PRIVACY_SECTIONS = [
     id: "titolare",
     title: "1. Titolare del trattamento",
     body: [
-      "Il titolare del trattamento dei dati personali relativi all’uso di School Manager è l’operatore dell’istanza dell’app (il progetto Firebase “school-for-you” collegato a questa applicazione).",
+      "Il titolare del trattamento dei dati personali relativi all’uso di School for you è l’operatore dell’istanza dell’app (il progetto Firebase “school-for-you” collegato a questa applicazione).",
       "Per richieste relative alla privacy puoi contattare il titolare all’indirizzo e-mail associato all’account di amministrazione del progetto Firebase.",
     ],
   },
@@ -26,7 +26,7 @@ export const PRIVACY_SECTIONS = [
     id: "finalita",
     title: "3. Perché li trattiamo (finalità e base giuridica)",
     body: [
-      "Erogare il servizio School Manager: sincronizzare e salvare i tuoi dati scolastici tra dispositivi (esecuzione del contratto / servizio richiesto).",
+      "Erogare il servizio School for you: sincronizzare e salvare i tuoi dati scolastici tra dispositivi (esecuzione del contratto / servizio richiesto).",
       "Autenticarti in modo sicuro tramite Google Sign-In (interesse legittimo / esecuzione del servizio).",
       "Dimostrare e rispettare il consenso all’informativa privacy (obbligo legale e accountability).",
       "Non usiamo i tuoi dati per profilazione pubblicitaria, marketing di terzi o vendita a terzi.",

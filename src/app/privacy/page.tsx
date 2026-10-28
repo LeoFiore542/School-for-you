@@ -22,7 +22,7 @@ export default function PrivacyPage() {
       <Panel className="space-y-6">
         <p className="text-sm leading-relaxed text-foreground/90 md:text-base">
           Questa informativa descrive in modo esplicito quali dati tratta School
-          Manager, perché li tratta, dove li conserva (Firebase Authentication e
+          for you, perché li tratta, dove li conserva (Firebase Authentication e
           Cloud Firestore) e quali diritti hai. L’accettazione è obbligatoria
           prima dell’accesso con Google.
         </p>

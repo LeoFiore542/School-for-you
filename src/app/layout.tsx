@@ -18,7 +18,7 @@ const body = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "School Manager",
+  title: "School for you",
   description:
     "Gestisci orario, compiti, voti e prove — il tuo anno scolastico in un posto solo.",
 };

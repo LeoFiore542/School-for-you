@@ -1,4 +1,4 @@
-# School Manager
+# School for you
 
 App personale per studenti delle superiori: orario, compiti, voti e prove.
 I dati restano in cache sul dispositivo e si sincronizzano su **Firebase Firestore**.

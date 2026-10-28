@@ -37,7 +37,7 @@ export default function LoginPage() {
     <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center animate-fade-up">
       <div className="mb-8 text-center">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-accent">
-          School Manager
+          School for you
         </p>
         <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">
           Accedi
