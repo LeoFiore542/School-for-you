@@ -24,7 +24,6 @@ export default function MateriePage() {
     addSubject,
     updateSubject,
     removeSubject,
-    resetToSeed,
     clearAll,
   } = useSchool();
 
@@ -202,18 +201,13 @@ export default function MateriePage() {
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <BtnSecondary
-            onClick={() => {
-              if (confirm("Ripristinare i dati di esempio? I dati attuali verranno sostituiti.")) {
-                resetToSeed();
-              }
-            }}
-          >
-            Ripristina dati esempio
-          </BtnSecondary>
-          <BtnSecondary
             danger
             onClick={() => {
-              if (confirm("Cancellare tutti i dati?")) {
+              if (
+                confirm(
+                  "Cancellare tutti i dati (materie, orario, compiti, voti e prove)?",
+                )
+              ) {
                 clearAll();
               }
             }}

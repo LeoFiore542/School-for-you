@@ -107,6 +107,17 @@ export function saveSchoolDataToFirebase(data: SchoolData): void {
   }, 400);
 }
 
+/** Salvataggio immediato (es. reset al primo accesso). */
+export function saveSchoolDataToFirebaseNow(data: SchoolData): void {
+  if (!isFirebaseConfigured() || !activeUid) return;
+  pendingSave = data;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  void flushFirebaseSave();
+}
+
 async function flushFirebaseSave(): Promise<void> {
   const data = pendingSave;
   const uid = activeUid;
@@ -163,6 +174,7 @@ export async function ensureFirebaseDocument(
   try {
     const snap = await getDoc(ref);
     if (snap.exists()) return;
+    // Primo documento remoto: usa lo stato locale passato (già vuoto al primo accesso).
     lastLocalWriteAt = Date.now();
     await setDoc(ref, { ...data, updatedAt: lastLocalWriteAt });
   } catch (err) {

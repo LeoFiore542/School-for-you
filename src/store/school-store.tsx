@@ -14,11 +14,12 @@ import {
   loadSchoolData,
   saveSchoolData,
   saveSchoolDataToFirebase,
+  saveSchoolDataToFirebaseNow,
   setStorageUser,
   subscribeSchoolData,
 } from "@/lib/storage";
 import { isFirebaseConfigured } from "@/lib/firebase";
-import { createSeedData, emptySchoolData } from "@/lib/seed";
+import { emptySchoolData } from "@/lib/seed";
 import type {
   Exam,
   Grade,
@@ -73,41 +74,35 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
-const SEED_HOMEWORK_IDS = new Set([
-  "hw-1",
-  "hw-2",
-  "hw-3",
-  "hw-4",
-  "hw-5",
-]);
-const SEED_EXAM_IDS = new Set(["ex-1", "ex-2", "ex-3"]);
+/** Una tantum: al primo avvio (per utente) azzera i dati così l’app parte vuota. */
+const EMPTY_START_FLAG = "school-for-you-empty-start-v3";
 
-/** Rimuove i compiti/prove di esempio lasciando eventuali voci create dall’utente. */
-function stripSeedHomeworkAndExams(data: SchoolData): SchoolData {
-  const homework = data.homework.filter((h) => !SEED_HOMEWORK_IDS.has(h.id));
-  const exams = data.exams.filter((e) => !SEED_EXAM_IDS.has(e.id));
-  if (
-    homework.length === data.homework.length &&
-    exams.length === data.exams.length
-  ) {
-    return data;
-  }
-  return { ...data, homework, exams };
+function emptyStartFlagKey(uid: string | null): string {
+  return `${EMPTY_START_FLAG}:${uid ?? "local"}`;
 }
 
 function hydrateForUser(uid: string | null): SchoolData {
   if (hydrated && boundUid === uid) return cache;
-  const stored = loadSchoolData(uid);
-  if (stored) {
-    cache = stripSeedHomeworkAndExams(stored);
-    if (cache !== stored) {
-      saveSchoolData(cache, uid);
-      if (uid) saveSchoolDataToFirebase(cache);
-    }
-  } else {
-    cache = createSeedData();
+
+  const flagKey = emptyStartFlagKey(uid);
+  const firstAccess =
+    typeof window !== "undefined" &&
+    localStorage.getItem(flagKey) !== "1";
+
+  if (firstAccess) {
+    cache = emptySchoolData();
     saveSchoolData(cache, uid);
+    if (uid) saveSchoolDataToFirebaseNow(cache);
+    localStorage.setItem(flagKey, "1");
+  } else {
+    const stored = loadSchoolData(uid);
+    cache = stored ?? emptySchoolData();
+    if (!stored) {
+      saveSchoolData(cache, uid);
+      if (uid) saveSchoolDataToFirebaseNow(cache);
+    }
   }
+
   boundUid = uid;
   hydrated = true;
   return cache;
@@ -255,7 +250,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
 
   const resetToSeed = useCallback(() => {
     if (!canWrite) return;
-    writeData(createSeedData(), uid);
+    writeData(emptySchoolData(), uid);
   }, [canWrite, uid]);
 
   const clearAll = useCallback(() => {
