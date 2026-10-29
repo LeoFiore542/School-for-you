@@ -17,7 +17,7 @@ export const PRIVACY_SECTIONS = [
     title: "2. Quali dati trattiamo",
     body: [
       "Dati di account Google: indirizzo e-mail, nome visualizzato, identificativo utente (UID) e, se disponibile, foto profilo. Questi dati sono forniti da Google al momento dell’accesso.",
-      "Dati scolastici che inserisci nell’app: materie, orario, compiti, voti, prove e relative note.",
+      "Dati scolastici che inserisci nell’app: materie, orario, voti e relative note.",
       "Metadati tecnici di consenso: data/ora di accettazione dell’informativa e versione del testo accettato.",
       "Dati di sessione/tecnici: token di autenticazione Firebase necessari al funzionamento del login; cache locale sul tuo dispositivo (localStorage) per uso offline e prestazioni.",
     ],

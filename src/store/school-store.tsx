@@ -21,9 +21,7 @@ import {
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { emptySchoolData } from "@/lib/seed";
 import type {
-  Exam,
   Grade,
-  Homework,
   LessonSlot,
   SchoolData,
   Subject,
@@ -43,16 +41,9 @@ type SchoolStore = {
   addLesson: (input: Omit<LessonSlot, "id">) => void;
   updateLesson: (id: string, patch: Partial<Omit<LessonSlot, "id">>) => void;
   removeLesson: (id: string) => void;
-  addHomework: (input: Omit<Homework, "id">) => void;
-  updateHomework: (id: string, patch: Partial<Omit<Homework, "id">>) => void;
-  removeHomework: (id: string) => void;
-  toggleHomework: (id: string) => void;
   addGrade: (input: Omit<Grade, "id">) => void;
   updateGrade: (id: string, patch: Partial<Omit<Grade, "id">>) => void;
   removeGrade: (id: string) => void;
-  addExam: (input: Omit<Exam, "id">) => void;
-  updateExam: (id: string, patch: Partial<Omit<Exam, "id">>) => void;
-  removeExam: (id: string) => void;
   getSubject: (id: string) => Subject | undefined;
 };
 
@@ -325,50 +316,6 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
-  const addHomework = useCallback(
-    (input: Omit<Homework, "id">) => {
-      commit((prev) => ({
-        ...prev,
-        homework: [...prev.homework, { ...input, id: createId("hw") }],
-      }));
-    },
-    [commit],
-  );
-
-  const updateHomework = useCallback(
-    (id: string, patch: Partial<Omit<Homework, "id">>) => {
-      commit((prev) => ({
-        ...prev,
-        homework: prev.homework.map((h) =>
-          h.id === id ? { ...h, ...patch } : h,
-        ),
-      }));
-    },
-    [commit],
-  );
-
-  const removeHomework = useCallback(
-    (id: string) => {
-      commit((prev) => ({
-        ...prev,
-        homework: prev.homework.filter((h) => h.id !== id),
-      }));
-    },
-    [commit],
-  );
-
-  const toggleHomework = useCallback(
-    (id: string) => {
-      commit((prev) => ({
-        ...prev,
-        homework: prev.homework.map((h) =>
-          h.id === id ? { ...h, done: !h.done } : h,
-        ),
-      }));
-    },
-    [commit],
-  );
-
   const addGrade = useCallback(
     (input: Omit<Grade, "id">) => {
       commit((prev) => ({
@@ -401,36 +348,6 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
-  const addExam = useCallback(
-    (input: Omit<Exam, "id">) => {
-      commit((prev) => ({
-        ...prev,
-        exams: [...prev.exams, { ...input, id: createId("ex") }],
-      }));
-    },
-    [commit],
-  );
-
-  const updateExam = useCallback(
-    (id: string, patch: Partial<Omit<Exam, "id">>) => {
-      commit((prev) => ({
-        ...prev,
-        exams: prev.exams.map((e) => (e.id === id ? { ...e, ...patch } : e)),
-      }));
-    },
-    [commit],
-  );
-
-  const removeExam = useCallback(
-    (id: string) => {
-      commit((prev) => ({
-        ...prev,
-        exams: prev.exams.filter((e) => e.id !== id),
-      }));
-    },
-    [commit],
-  );
-
   const getSubject = useCallback(
     (id: string) => data.subjects.find((s) => s.id === id),
     [data.subjects],
@@ -449,16 +366,9 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
       addLesson,
       updateLesson,
       removeLesson,
-      addHomework,
-      updateHomework,
-      removeHomework,
-      toggleHomework,
       addGrade,
       updateGrade,
       removeGrade,
-      addExam,
-      updateExam,
-      removeExam,
       getSubject,
     }),
     [
@@ -473,16 +383,9 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
       addLesson,
       updateLesson,
       removeLesson,
-      addHomework,
-      updateHomework,
-      removeHomework,
-      toggleHomework,
       addGrade,
       updateGrade,
       removeGrade,
-      addExam,
-      updateExam,
-      removeExam,
       getSubject,
     ],
   );

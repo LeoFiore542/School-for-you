@@ -178,7 +178,7 @@ export default function MateriePage() {
                     onClick={() => {
                       if (
                         confirm(
-                          `Eliminare ${s.name}? Verranno rimossi anche orario, compiti, voti e prove collegati.`,
+                          `Eliminare ${s.name}? Verranno rimossi anche orario e voti collegati.`,
                         )
                       ) {
                         removeSubject(s.id);
@@ -205,7 +205,7 @@ export default function MateriePage() {
             onClick={() => {
               if (
                 confirm(
-                  "Cancellare tutti i dati (materie, orario, compiti, voti e prove)?",
+                  "Cancellare tutti i dati (materie, orario e voti)?",
                 )
               ) {
                 clearAll();

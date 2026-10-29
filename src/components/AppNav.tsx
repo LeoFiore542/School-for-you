@@ -8,9 +8,7 @@ import { useSchool } from "@/store/school-store";
 const NAV = [
   { href: "/", label: "Oggi", icon: TodayIcon },
   { href: "/orario", label: "Orario", icon: ScheduleIcon },
-  { href: "/compiti", label: "Compiti", icon: HomeworkIcon },
   { href: "/voti", label: "Voti", icon: GradesIcon },
-  { href: "/prove", label: "Prove", icon: ExamIcon },
   { href: "/materie", label: "Materie", icon: SubjectsIcon },
 ] as const;
 
@@ -150,29 +148,10 @@ function ScheduleIcon({ className }: { className?: string }) {
   );
 }
 
-function HomeworkIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
-      <rect x="9" y="3" width="6" height="4" rx="1" />
-      <path d="M9 12h6M9 16h4" />
-    </svg>
-  );
-}
-
 function GradesIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
       <path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.4 5.7 20.8 8 13.6 2 9.2h7.6z" />
-    </svg>
-  );
-}
-
-function ExamIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-      <path d="M14 2v6h6M9 13h6M9 17h4" />
     </svg>
   );
 }

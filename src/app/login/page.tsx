@@ -43,7 +43,7 @@ export default function LoginPage() {
           Accedi
         </h1>
         <p className="mt-2 text-sm text-muted md:text-base">
-          Entra con Google per sincronizzare orario, compiti e voti in modo
+          Entra con Google per sincronizzare orario, materie e voti in modo
           sicuro sul tuo account.
         </p>
       </div>

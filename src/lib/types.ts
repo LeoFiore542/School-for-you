@@ -1,7 +1,5 @@
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6; // Lun–Sab
 
-export type ExamType = "verifica" | "interrogazione" | "compito_in_classe";
-
 export type GradeType = "scritto" | "orale" | "pratico" | "altro";
 
 export interface Subject {
@@ -23,15 +21,6 @@ export interface LessonSlot {
   classNumber?: string;
 }
 
-export interface Homework {
-  id: string;
-  subjectId: string;
-  title: string;
-  dueDate: string; // YYYY-MM-DD
-  done: boolean;
-  notes?: string;
-}
-
 export interface Grade {
   id: string;
   subjectId: string;
@@ -42,11 +31,22 @@ export interface Grade {
   note?: string;
 }
 
+/** Legacy shape kept for Firestore/localStorage compatibility (UI removed). */
+export interface Homework {
+  id: string;
+  subjectId: string;
+  title: string;
+  dueDate: string;
+  done: boolean;
+  notes?: string;
+}
+
+/** Legacy shape kept for Firestore/localStorage compatibility (UI removed). */
 export interface Exam {
   id: string;
   subjectId: string;
-  date: string; // YYYY-MM-DD
-  type: ExamType;
+  date: string;
+  type: string;
   topic?: string;
 }
 
@@ -74,12 +74,6 @@ export const DAY_SHORT: Record<DayOfWeek, string> = {
   4: "Gio",
   5: "Ven",
   6: "Sab",
-};
-
-export const EXAM_TYPE_LABELS: Record<ExamType, string> = {
-  verifica: "Verifica",
-  interrogazione: "Interrogazione",
-  compito_in_classe: "Compito in classe",
 };
 
 export const GRADE_TYPE_LABELS: Record<GradeType, string> = {

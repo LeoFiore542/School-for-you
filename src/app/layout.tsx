@@ -20,7 +20,7 @@ const body = Outfit({
 export const metadata: Metadata = {
   title: "School for you",
   description:
-    "Gestisci orario, compiti, voti e prove — il tuo anno scolastico in un posto solo.",
+    "Gestisci orario, materie e voti — il tuo anno scolastico in un posto solo.",
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 # School for you
 
-App personale per studenti delle superiori: orario, compiti, voti e prove.
+App personale per studenti delle superiori: orario, materie e voti.
 I dati restano in cache sul dispositivo e si sincronizzano su **Firebase Firestore**.
 
 Deploy statico su **GitHub Pages**: [LeoFiore542/School-for-you](https://github.com/LeoFiore542/School-for-you).
@@ -19,12 +19,10 @@ Senza variabili Firebase l’app funziona comunque solo con `localStorage`.
 
 ## Funzionalità
 
-- **Oggi** — dashboard con lezioni, compiti urgenti e prossime prove
+- **Oggi** — dashboard con lezioni del giorno e media generale
 - **Orario** — griglia settimanale
 - **Materie** — CRUD con colori e docenti
-- **Compiti** — scadenze e checklist
 - **Voti** — registrazione e medie (anche ponderate)
-- **Prove** — verifiche, interrogazioni, compiti in classe
 
 ## Firebase + login Google
 
